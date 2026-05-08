@@ -14,39 +14,22 @@ def json_response(payload: dict, status_code: int = 200) -> func.HttpResponse:
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    greeting = get_setting("HTTP_GREETING")
+    greeting = get_setting("HTTP_GREETING", "Hello")
     name = req.params.get('name')
 
     if not name:
         try:
             req_body = req.get_json()
+            name = req_body.get('name') if isinstance(req_body, dict) else None
         except ValueError:
-            return json_response(
-                {
-                    "error": "Invalid JSON payload.",
-                    "expectedPayload": {
-                        "name": "Aashritha"
-                    }
-                },
-                status_code=400
-            )
+            name = None
 
-        name = req_body.get('name') if isinstance(req_body, dict) else None
-
-    if name:
-        return json_response(
-            {
-                "message": f"{greeting}, {name}!",
-                "name": name
-            }
-        )
+    if not name:
+        name = "Maneesh"
 
     return json_response(
         {
-            "error": "Missing required field: name.",
-            "expectedPayload": {
-                "name": "Aashritha"
-            }
-        },
-        status_code=400
+            "message": f"{greeting}, {name}!",
+            "name": name
+        }
     )
